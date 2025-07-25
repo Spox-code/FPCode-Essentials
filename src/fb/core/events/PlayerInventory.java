@@ -41,6 +41,24 @@ public class PlayerInventory implements Listener {
                     BanAPI.removeReward(p.getName(), "svip");
                     p.sendTitle(HexAPI.hex("#0096fc§lNAGRODA"), HexAPI.hex("§fOdebrales nagrode §e§lS§6§lVIP"));
                     break;
+                case DIAMOND:
+                    p.closeInventory();
+                    ra.setRank(p, "mvip");
+                    BanAPI.removeReward(p.getName(), "mvip");
+                    p.sendTitle(HexAPI.hex("#0096fc§lNAGRODA"), HexAPI.hex("§fOdebrales nagrode §5§lM§6§lVIP"));
+                    break;
+                case DIAMOND_BLOCK:
+                    p.closeInventory();
+                    ra.setRank(p, "elita");
+                    BanAPI.removeReward(p.getName(), "elita");
+                    p.sendTitle(HexAPI.hex("#0096fc§lNAGRODA"), HexAPI.hex("§fOdebrales nagrode §b§lElita"));
+                    break;
+                case NETHERITE_INGOT:
+                    p.closeInventory();
+                    ra.setRank(p, "legenda");
+                    BanAPI.removeReward(p.getName(), "legenda");
+                    p.sendTitle(HexAPI.hex("#0096fc§lNAGRODA"), HexAPI.hex("§fOdebrales nagrode §6§lLegenda"));
+                    break;
 
                 default:
                     Reward.OpenGUI(p);
