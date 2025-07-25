@@ -50,6 +50,16 @@ public class TabListAPI {
         processedLine = processedLine.replace("{rank_prefix}", ra.getRankPrefix(ra.getRank(p.getName())));
         processedLine = processedLine.replace("{online_players}", String.valueOf(Bukkit.getOnlinePlayers().size()));
         processedLine = processedLine.replace("{max_players}", String.valueOf(Bukkit.getMaxPlayers()));
+        processedLine = processedLine.replace("{kills}", String.valueOf(BanAPI.getPlayerStatKills(p.getName())));
+        processedLine = processedLine.replace("{deaths}", String.valueOf(BanAPI.getPlayerStatDeaths(p.getName())));
+        double money = BanAPI.getPlayerStatMoney(p.getName());
+        String formatmoney = String.format("%.2f", money) + "$";
+        if(money > 1000000){
+            formatmoney = String.format("%.2f", (money/1000000)) + "mln";
+        }else if(money > 1000){
+            formatmoney = String.format("%.2f", (money/1000)) + "tys";
+        }
+        processedLine = processedLine.replace("{money}", formatmoney);
 
         processedLine = processedLine.replace("{bungee_online_all}", String.valueOf(BungeeAPI.getCachedOnlinePlayers("ALL")));
 
@@ -59,6 +69,7 @@ public class TabListAPI {
                 processedLine = processedLine.replace("{bungee_online_" + serverName.toLowerCase() + "}", String.valueOf(BungeeAPI.getCachedOnlinePlayers(serverName)));
             }
         }
+
 
         return processedLine;
     }

@@ -122,7 +122,14 @@ public class Sidebar {
         processedLine = processedLine.replace("{max_players}", String.valueOf(Bukkit.getMaxPlayers()));
         processedLine = processedLine.replace("{kills}", String.valueOf(BanAPI.getPlayerStatKills(p.getName())));
         processedLine = processedLine.replace("{deaths}", String.valueOf(BanAPI.getPlayerStatDeaths(p.getName())));
-        processedLine = processedLine.replace("{money}", String.valueOf(BanAPI.getPlayerStatMoney(p.getName())));
+        double money = BanAPI.getPlayerStatMoney(p.getName());
+        String formatmoney = String.format("%.2f", money) + "$";
+        if(money > 1000000){
+            formatmoney = String.format("%.2f", (money/1000000)) + "mln";
+        }else if(money > 1000){
+            formatmoney = String.format("%.2f", (money/1000)) + "tys";
+        }
+        processedLine = processedLine.replace("{money}", formatmoney);
 
         processedLine = processedLine.replace("{bungee_online_all}", String.valueOf(BungeeAPI.getCachedOnlinePlayers("ALL")));
 
