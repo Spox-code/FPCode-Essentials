@@ -1,0 +1,9 @@
+main: mp.lobby.Main
+version: 1.0
+name: MP-LobbyCMD
+author: xPixel_
+api-version: 1.13
+
+commands:
+  lobby:
+  

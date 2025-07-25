@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="FPCode-Essentials">
+    <output-path>$PROJECT_DIR$/../Gotowe</output-path>
+    <root id="archive" name="FPCode-Essentials.jar">
+      <element id="module-output" name="FPCode-Essentials" />
+    </root>
+  </artifact>
+</component>

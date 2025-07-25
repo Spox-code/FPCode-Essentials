@@ -1,0 +1,7 @@
+main: fb.ranks.Main
+version: 1.0
+author: xSpox_
+name: FB-Ranks
+
+commands:
+  rank:

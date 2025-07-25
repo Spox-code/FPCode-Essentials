@@ -1,0 +1,22 @@
+main: zst.fb.Main
+version: 1.0
+api-version: 1.13
+author: xPixel_
+name: ZST-Core
+
+commands:
+  zadania:
+  pomoc:
+  praca:
+  pet:
+  home:
+    allias:
+      - dom
+      - domek
+      - hom
+  login:
+    aliases:
+      - l
+  register:
+    aliases:
+      - reg

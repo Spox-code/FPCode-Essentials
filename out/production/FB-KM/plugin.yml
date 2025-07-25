@@ -1,0 +1,12 @@
+main: fb.km.Main
+version: 1.0
+name: FB-KM
+author: xSpox_
+api-version: 1.13
+
+commands:
+  czaszka:
+  shop:
+  withdraw:
+  banknot:
+  aitems:

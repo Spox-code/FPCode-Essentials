@@ -1,0 +1,11 @@
+main: fb.core.Main
+version: 1.0
+author: xSpox_
+name: FB-Core
+
+commands:
+  rank:
+  helpop:
+  msg:
+  spy:
+  gm:

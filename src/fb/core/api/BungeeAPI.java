@@ -1,0 +1,138 @@
+package fb.core.api;
+
+import fb.core.Main;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.messaging.PluginMessageListener; // Dodaj ten import
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.ByteArrayInputStream; // Dodaj ten import
+import java.io.DataInputStream;     // Dodaj ten import
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+
+public class BungeeAPI implements PluginMessageListener { // BungeeAPI musi implementować PluginMessageListener
+
+    private static Main plugin; // Zmieniamy na statyczne pole, jak chciałeś
+    // Mapa do przechowywania aktualnej liczby graczy dla każdego serwera
+    private static final Map<String, Integer> onlinePlayersCache = new HashMap<>();
+    // Mapa do przechowywania CompletableFuture dla oczekujących zapytań o liczbę graczy
+    private static final Map<String, CompletableFuture<Integer>> pendingPlayerCountRequests = new HashMap<>();
+
+    public BungeeAPI(Main m){
+        plugin = m; // Inicjalizacja statycznego pola pluginu
+
+        // Rejestracja kanałów BungeeCord do wysyłania i odbierania wiadomości
+        // Te rejestracje MUSZĄ być wykonane JEDNOKROTNIE i muszą być powiązane z instancją listenera.
+        // Najlepiej jest to zrobić w konstruktorze lub w onEnable w Main.
+        Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+        Bukkit.getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", this); // "this" odnosi się do instancji BungeeAPI jako listenera
+    }
+
+    public static void sendMessage(Player p, String msg){
+        if (plugin == null) {
+            Bukkit.getLogger().severe("BungeeAPI: Plugin nie został zainicjalizowany! Nie można wysłać wiadomości.");
+            return;
+        }
+        try{
+            ByteArrayOutputStream arr = new ByteArrayOutputStream();
+            DataOutputStream out = new DataOutputStream(arr);
+            out.writeUTF("Message");
+            out.writeUTF("ALL"); // Możesz zmienić na konkretnego gracza lub serwer
+            out.writeUTF(msg);
+            p.sendPluginMessage(plugin, "BungeeCord", arr.toByteArray());
+        }catch (Exception e){
+            plugin.getLogger().log(Level.SEVERE, "Błąd podczas wysyłania wiadomości BungeeCord: " + e.getMessage(), e);
+        }
+    }
+
+    public static CompletableFuture<Integer> requestOnlinePlayers(String server) {
+        if (plugin == null) {
+            // Zwróć zakończony Future z błędem lub 0, jeśli plugin nie zainicjalizowany
+            CompletableFuture<Integer> future = new CompletableFuture<>();
+            future.complete(0); // lub future.completeExceptionally(new IllegalStateException("Plugin not initialized"));
+            //Bukkit.getLogger().severe("BungeeAPI: Plugin nie został zainicjalizowany! Nie można wysłać zapytania o graczy.");
+            return future;
+        }
+
+        // Stwórz nowy CompletableFuture, aby zwrócić wynik, gdy nadejdzie
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        pendingPlayerCountRequests.put(server, future); // Przechowuj future dla danej nazwy serwera
+
+        // Musi być co najmniej jeden gracz online, aby wysłać wiadomość pluginową.
+        Player player = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
+        if (player == null) {
+            future.complete(0); // Brak graczy online na tym serwerze Bukkit, więc nie można wysłać zapytania
+            //plugin.getLogger().warning("BungeeAPI: Brak graczy online, nie można wysłać zapytania o listę graczy dla serwera: " + server);
+            pendingPlayerCountRequests.remove(server); // Usuń future, bo nie zostanie rozwiązany
+            return future;
+        }
+
+        try {
+            ByteArrayOutputStream b = new ByteArrayOutputStream();
+            DataOutputStream out = new DataOutputStream(b);
+            out.writeUTF("PlayerCount"); // Podkomenda do liczenia graczy
+            out.writeUTF(server);       // Nazwa serwera, dla którego chcemy liczbę graczy
+            player.sendPluginMessage(plugin, "BungeeCord", b.toByteArray());
+            //plugin.getLogger().info("BungeeAPI: Wysłano zapytanie o liczbę graczy dla serwera: " + server);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Błąd podczas wysyłania zapytania PlayerCount dla serwera " + server + ": " + e.getMessage(), e);
+            future.completeExceptionally(e);
+            pendingPlayerCountRequests.remove(server); // Usuń future w przypadku błędu
+        }
+        return future;
+    }
+
+    public static int getCachedOnlinePlayers(String server) {
+        return onlinePlayersCache.getOrDefault(server, 0);
+    }
+
+    @Override // Ta metoda jest częścią interfejsu PluginMessageListener
+    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+        if (!channel.equals("BungeeCord")) {
+            return;
+        }
+
+        try {
+            DataInputStream in = new DataInputStream(new ByteArrayInputStream(message));
+            String subchannel = in.readUTF(); // Subkomenda (np. "PlayerCount", "GetServers")
+
+            if (subchannel.equals("PlayerCount")) {
+                String server = in.readUTF(); // Nazwa serwera (np. "ALL", "survival")
+                int playerCount = in.readInt(); // Liczba graczy
+
+                //plugin.getLogger().info("BungeeAPI: Otrzymano liczbę graczy dla serwera '" + server + "': " + playerCount);
+
+                // Zaktualizuj cache
+                onlinePlayersCache.put(server, playerCount);
+
+                // Dokończ CompletableFuture, jeśli jakieś zapytanie czeka
+                CompletableFuture<Integer> future = pendingPlayerCountRequests.remove(server);
+                if (future != null) {
+                    future.complete(playerCount);
+                }
+            }
+            // Możesz tutaj obsłużyć inne podkomendy BungeeCord, np. "GetServers"
+            // else if (subchannel.equals("GetServers")) { ... }
+
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Błąd podczas odbierania wiadomości BungeeCord: " + e.getMessage(), e);
+        }
+    }
+    public static void sendPlayerToServer(Player p, String server){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        try {
+            dos.writeUTF("Connect");
+            dos.writeUTF(server);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        p.sendMessage(HexAPI.hex("§fPrzenoszenie na tryb #0096fc"+server));
+        p.sendPluginMessage(plugin, "BungeeCord", baos.toByteArray());
+    }
+}

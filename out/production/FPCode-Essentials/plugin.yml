@@ -1,0 +1,52 @@
+name: FPCode-Essentials
+version: 1.0
+main: fb.core.Main
+api-version: 1.21.1
+author: xSpox_
+description: Podstawowe funkcje serwera
+
+commands:
+  rank:
+    description: Zarządza rangami graczy.
+    permission: fb.rank
+    permission-message: Nie masz uprawnień!
+  configreload:
+    description: Przeładowuje konfigurację pluginu.
+    permission: fb.configreload
+    permission-message: Nie masz uprawnień!
+  tempban:
+    description: Tymczasowo banuje gracza.
+    permission: fb.tempban
+    permission-message: Nie masz uprawnień!
+  unban: # NOWA KOMENDA
+    description: Odbanowuje gracza.
+    permission: fb.unban
+    permission-message: Nie masz uprawnień!
+  unmute: # NOWA KOMENDA
+    description: Odbanowuje gracza.
+    permission: fb.unmute
+    permission-message: Nie masz uprawnień!
+  tempmute: # NOWA KOMENDA
+    description: Tymczasowo wycisza gracza.
+    permission: fb.tempmute # NOWE UPRWAWNIENIE
+    permission-message: Nie masz uprawnień do wyciszania graczy.
+  helpop: # NOWA KOMENDA
+    description: Wiadomosci do administracji.
+  alertmsg:
+    description: Alert na wszystkie serwery
+  gamemode:
+    description: Zmiana trybu gry
+    permission: fb.gamemode # NOWE UPRWAWNIENIE
+    permission-message: Nie masz uprawnień do wyciszania graczy.
+    aliases:
+      - gm
+  warn:
+  playerinfo:
+  msg:
+  food:
+  heal:
+  chat:
+  bctitle:
+  odbierz:
+
+
