@@ -43,7 +43,7 @@ public class HelpOP implements CommandExecutor, TabExecutor {
                 p.sendMessage(HexAPI.hex("§8[#0096FC⚡§8] §fWyslales wiadomosc do #0096fcAdministracji"));
                 for(Player ps : Bukkit.getOnlinePlayers()){
                     if(ra.hasPermission(ps, permission)){
-                        ps.sendMessage(HexAPI.hex("§8[#0096FCHelpOP§8] §c" + cd.getData().getString("servers.this").toUpperCase() +" " + ra.getRankPrefix(ra.getRank(p.getName())) + " " + p.getName() + "§8: #0096FC" + msg));
+                        ps.sendMessage(HexAPI.hex("§8[#0096FCHelpOP§8] " + ra.getRankPrefix(ra.getRank(p.getName())) + " " + p.getName() + "§8: #0096FC" + msg));
                     }
                 }
             }else{
