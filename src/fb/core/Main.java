@@ -142,8 +142,6 @@ public class Main extends JavaPlugin {
                     }
                 }
                 BungeeAPI.requestOnlinePlayers("ALL");
-            } else {
-                getLogger().info("Brak graczy online, nie można wysłać zapytania BungeeAPI PlayerCount.");
             }
         }, 100L, 100L); // Opóźnienie 5s, powtarzaj co 5s
     }

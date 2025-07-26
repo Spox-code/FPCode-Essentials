@@ -124,15 +124,58 @@ public class BungeeAPI implements PluginMessageListener { // BungeeAPI musi impl
         }
     }
     public static void sendPlayerToServer(Player p, String server){
+        // WAŻNE: W tej strategii, to Twój plugin będzie odpowiedzialny za **jedyny** komunikat błędu.
+        // Jeśli BungeeCord wyświetli coś na czacie, ten kod tego nie powstrzyma,
+        // ale gracz zobaczy Twój tytuł i wiadomość, co może "przykryć" domyślny komunikat.
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
         try {
             dos.writeUTF("Connect");
             dos.writeUTF(server);
-        } catch (Exception e) {
+        } catch (IOException e) {
+            // Ten blok catch dotyczy BŁĘDÓW WEWNĘTRZNYCH podczas PRZYGOTOWYWANIA wiadomości,
+            // a nie błędów połączenia z serwerem BungeeCord.
             e.printStackTrace();
+            // W przypadku błędu przygotowania wiadomości, od razu wysyłamy tytuł błędu
+            // i nie próbujemy wysyłać wiadomości pluginowej, bo jest uszkodzona.
+            sendErrorTitle(p); // Wyślij nasz niestandardowy tytuł błędu
+            p.sendMessage(HexAPI.hex("§cWystąpił wewnętrzny błąd. Spróbuj ponownie.")); // Wiadomość na czat
+            return;
         }
-        p.sendMessage(HexAPI.hex("§fPrzenoszenie na tryb #0096fc"+server));
+
+        // Zawsze wysyłamy wiadomość do BungeeCorda, aby spróbował przenieść gracza.
+        // Nawet jeśli serwer jest offline, BungeeCord spróbuje go przenieść, a gracz pozostanie na obecnym serwerze.
         p.sendPluginMessage(plugin, "BungeeCord", baos.toByteArray());
+
+        // Informacja dla gracza o próbie przeniesienia - to zostanie wyświetlone ZAWSZE.
+        p.sendMessage(HexAPI.hex("§fPrzenoszenie na tryb #0096fc"+server));
+
+        // --- Logika do sprawdzania błędu przeniesienia ---
+        // Planujemy zadanie, które sprawdzi po krótkim czasie, czy gracz nadal jest na tym samym serwerze.
+        // Jeśli tak, zakładamy, że transfer się nie powiódł i wyświetlamy NASZ błąd.
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // Sprawdź, czy gracz jest nadal online i czy to nadal jest ten sam gracz
+            if (p.isOnline() && p.isValid()) {
+                // Heurystyka: Jeśli gracz po 3 sekundach nadal jest na tym serwerze,
+                // to oznacza, że transfer BungeeCord prawdopodobnie się nie powiódł.
+                // W tym momencie, jeśli BungeeCord wyświetlił swój błąd, to już się stało.
+                // My po prostu wyświetlimy NASZ tytuł i wiadomość, niezależnie od tego, co BungeeCord pokazał.
+                sendErrorTitle(p);
+            }
+        }, 2 * 20L); // 3 sekundy (60 tyknięć)
+    }
+
+    // Metoda sendErrorTitle pozostaje bez zmian, jak ją zmodyfikowałeś ostatnio
+    private static void sendErrorTitle(Player p) {
+            // Dla Spigot (starsze wersje)
+            p.sendTitle(
+                    HexAPI.hex("#ff0000✕ ʙʟᴀᴅ ᴘᴏʟᴀᴄᴢᴇɴɪᴀ! #ff0000✕"),
+                    HexAPI.hex("§7ѕᴇʀᴡᴇʀ ɴɪᴇᴅᴏѕᴛᴇᴘɴʏ!"),
+                    10, // fadeIn (tyki)
+                    60, // stay (tyki)
+                    20  // fadeOut (tyki)
+            );
+        p.sendMessage(HexAPI.hex("§cBłąd: Nie udało się połączyć z serwerem.")); // Dodatkowa wiadomość na czat
     }
 }
