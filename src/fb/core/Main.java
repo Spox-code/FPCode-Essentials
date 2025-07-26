@@ -98,6 +98,7 @@ public class Main extends JavaPlugin {
         getCommand("chat").setExecutor(new Chat(this));
         getCommand("bctitle").setExecutor(new BCTitle(this));
         getCommand("odbierz").setExecutor(new Odbierz(this));
+        getCommand("live").setExecutor(new Live(this));
 
         // Rejestracja zdarzeń (listenerów)
         getServer().getPluginManager().registerEvents(new PlayerChat(this, banAPI), this);
