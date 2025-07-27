@@ -35,7 +35,7 @@ public class Live implements CommandExecutor, TabExecutor {
             if (ra.hasPermission(p, "fb.live")) {
                 if(args.length == 1) {
                     BungeeAPI.sendMessage(p, "");
-                    BungeeAPI.sendMessage(p, HexAPI.hex("#0096fc§lFPCode§r §8m-§r #0096fc§lLIVE"));
+                    BungeeAPI.sendMessage(p, HexAPI.hex("#0096fc§lFPCode§r §8§m-§r #0096fc§lLIVE"));
                     BungeeAPI.sendMessage(p, HexAPI.hex("§fGracz #0096fc" + p.getName() + " §faktualnie prowadzi #0096fclive"));
                     BungeeAPI.sendMessage(p, HexAPI.hex("#0096fc" + args[0]));
                     BungeeAPI.sendMessage(p, "");
