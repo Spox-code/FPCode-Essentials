@@ -33,7 +33,7 @@ public class RanksAPI {
         this.mySQL = new MySQL(plugin); // Przekaż plugin do MySQL
 
         try {
-            MySQL.connect(); // Metoda connect powinna być statyczna lub wywołana na instancji
+            mySQL.connect(); // Metoda connect powinna być statyczna lub wywołana na instancji
             mySQL.createTables(); // Metoda createTables powinna być wywołana na instancji
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Nie udało się zainicjalizować połączenia z bazą danych dla rang. Plugin może nie działać poprawnie.", e);
